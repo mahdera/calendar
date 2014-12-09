@@ -56,11 +56,25 @@ $(document).ready(function() {
                   calEvent.body = bodyField.val();
 
         				  //post to events.php
-        				  $.post("events.php?action=save&start="+calEvent.start.getTime()/1000+"&end="+calEvent.end.getTime()/1000+"&title="+calEvent.title+"&body="+calEvent.body);
+        				  //$.post("events.php?action=save&start="+calEvent.start.getTime()/1000+"&end="+calEvent.end.getTime()/1000+"&title="+calEvent.title+"&body="+calEvent.body);
+                  $dataString = "action=save&start="+calEvent.start.getTime()/1000+"&end="+calEvent.end.getTime()/1000+"&title="+calEvent.title+"&body="+calEvent.body);
+                  $.ajax({
+                    url: 'events.php',
+                    data: dataString,
+                    type:'POST',
+                    success:function(response){
+                      $calendar.weekCalendar("removeUnsavedEvents");
+                      $calendar.weekCalendar("updateEvent", calEvent);
+                      $dialogContent.dialog("close");
+                    },
+                    error:function(error){
+                      alert(error);
+                    }
+                  });
 
-                  $calendar.weekCalendar("removeUnsavedEvents");
+                  /*$calendar.weekCalendar("removeUnsavedEvents");
                   $calendar.weekCalendar("updateEvent", calEvent);
-                  $dialogContent.dialog("close");
+                  $dialogContent.dialog("close");*/
                },
                cancel : function() {
                   $dialogContent.dialog("close");

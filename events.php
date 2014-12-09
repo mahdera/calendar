@@ -1,6 +1,7 @@
 <?php
 
-$action = $_REQUEST['action'];
+$action = $_POST['action'];
+var_dump($action);
 
 if (!$link = mysql_connect('localhost', 'root', 'root')) {
     echo 'Could not connect to mysql';
