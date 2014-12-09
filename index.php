@@ -2,7 +2,7 @@
 <html>
 <head>
 
-	<link rel='stylesheet' type='text/css' href='css/reset.css' />
+
     <!--
 	<link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/start/jquery-ui.css' />
 	-->
@@ -12,6 +12,8 @@
 
 	<link rel='stylesheet' type='text/css' href='css/jquery.weekcalendar.css' />
 	<link rel='stylesheet' type='text/css' href='css/calendar.css' />
+	<link rel='stylesheet' type='text/css' href='css/reset.css' />
+	<link rel='stylesheet' type='text/css' href='css/engine.css' />
 
 
 	<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js'></script>

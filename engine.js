@@ -57,7 +57,7 @@ $(document).ready(function() {
 
         				  //post to events.php
         				  //$.post("events.php?action=save&start="+calEvent.start.getTime()/1000+"&end="+calEvent.end.getTime()/1000+"&title="+calEvent.title+"&body="+calEvent.body);
-                  $dataString = "action=save&start="+calEvent.start.getTime()/1000+"&end="+calEvent.end.getTime()/1000+"&title="+calEvent.title+"&body="+calEvent.body);
+                  var dataString = "action=save&start="+(calEvent.start.getTime()/1000)+"&end="+(calEvent.end.getTime()/1000)+"&title="+encodeURIComponent(calEvent.title)+"&body="+encodeURIComponent(calEvent.body);
                   $.ajax({
                     url: 'events.php',
                     data: dataString,
