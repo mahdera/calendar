@@ -1,5 +1,5 @@
 /*
- * jQuery.weekCalendar v1.2.3-pre
+ * jQuery.weekCalendar v1.2.2
  * http://www.redredred.com.au/
  *
  * Requires:
@@ -11,7 +11,7 @@
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php
  *   http://www.gnu.org/licenses/gpl.html
- *   
+ *
  *   If you're after a monthly calendar plugin, check out http://arshaw.com/fullcalendar/
  */
 
@@ -19,84 +19,15 @@
 
    $.widget("ui.weekCalendar", {
 
-       options : {
-         date: new Date(),
-         timeFormat : "h:i a",
-         dateFormat : "M d, Y",
-         alwaysDisplayTimeMinutes: true,
-         use24Hour : false,
-         daysToShow : 7,
-         firstDayOfWeek : 0, // 0 = Sunday, 1 = Monday, 2 = Tuesday, ... , 6 = Saturday
-         useShortDayNames: false,
-         timeSeparator : " to ",
-         startParam : "start",
-         endParam : "end",
-         businessHours : {start: 8, end: 18, limitDisplay : false},
-         newEventText : "New Event",
-         timeslotHeight: 20,
-         defaultEventLength : 2,
-         timeslotsPerHour : 4,
-         buttons : true,
-         buttonText : {
-            today : "today",
-            lastWeek : "&nbsp;&lt;&nbsp;",
-            nextWeek : "&nbsp;&gt;&nbsp;"
-         },
-         scrollToHourMillis : 500,
-         allowCalEventOverlap : false,
-         overlapEventsSeparate: false,
-         readonly: false,
-         draggable : function(calEvent, element) {
-            return true;
-         },
-         resizable : function(calEvent, element) {
-            return true;
-         },
-         eventClick : function() {
-         },
-         eventRender : function(calEvent, element) {
-            return element;
-         },
-         eventAfterRender : function(calEvent, element) {
-            return element;
-         },
-         eventDrag : function(calEvent, element) {
-         },
-         eventDrop : function(calEvent, element) {
-         },
-         eventResize : function(calEvent, element) {
-         },
-         eventNew : function(calEvent, element) {
-         },
-         eventMouseover : function(calEvent, $event) {
-         },
-         eventMouseout : function(calEvent, $event) {
-         },
-         calendarBeforeLoad : function(calendar) {
-         },
-         calendarAfterLoad : function(calendar) {
-         },
-         noEvents : function() {
-         },
-         shortMonths : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-         longMonths : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-         shortDays : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-         longDays : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-      },
-
       /***********************
        * Initialise calendar *
        ***********************/
-      _create : function() {
-
+      _init : function() {
          var self = this;
          self._computeOptions();
          self._setupEventDelegation();
-
          self._renderCalendar();
-
          self._loadCalEvents();
-
          self._resizeCalendar();
          self._scrollToHour(self.options.date.getHours());
 
@@ -107,7 +38,6 @@
 
       },
 
-
       /********************
        * public functions *
        ********************/
@@ -115,6 +45,7 @@
        * Refresh the events for the currently displayed week.
        */
       refresh : function() {
+         this._clearCalendar();
          this._loadCalEvents(this.element.data("startDate")); //reload with existing week
       },
 
@@ -249,41 +180,13 @@
          }
       },
 
-
-
-
-
-/*
       getData : function(key) {
          return this._getData(key);
       },
-      */
 
       /*********************
        * private functions *
        *********************/
-
-
-      _setOption: function(key, value) {
-         var self = this;
-         if(self.options[key] != value) {
-
-            // this could be made more efficient at some stage by caching the
-            // events array locally in a store but this should be done in conjunction
-            // with a proper binding model.
-
-            var currentEvents = $.map(self.element.find(".wc-cal-event"), function() {
-               return $(this).data("calEvent");
-            });
-
-            var newOptions = {};
-            newOptions[key] = value;
-            self._renderEvents({events:currentEvents, options: newOptions}, self.element.find(".wc-day-column-inner"))
-        }
-
-	   },
-      
-
       // compute dynamic options based on other config values
       _computeOptions : function() {
 
@@ -545,13 +448,9 @@
 
          var date, weekStartDate, endDate, $weekDayColumns;
          var self = this;
-
-
-
          var options = this.options;
          date = dateWithinWeek || options.date;
          weekStartDate = self._dateFirstDayOfWeek(date);
-
          weekEndDate = self._dateLastMilliOfWeek(date);
 
          options.calendarBeforeLoad(self.element);
@@ -565,6 +464,7 @@
 
          //load events by chosen means
          if (typeof options.data == 'string') {
+           //alert('got here');
             if (options.loading) options.loading(true);
             var jsonOptions = {};
             jsonOptions[options.startParam || 'start'] = Math.round(weekStartDate.getTime() / 1000);
@@ -631,25 +531,21 @@
       /*
        * Render the events into the calendar
        */
-      _renderEvents : function (data, $weekDayColumns) {
-
-         this._clearCalendar();
-
+      _renderEvents : function (events, $weekDayColumns) {
          var self = this;
          var options = this.options;
          var eventsToRender;
 
-         if ($.isArray(data)) {
-            eventsToRender = self._cleanEvents(data);
-         } else if (data.events) {
-            eventsToRender = self._cleanEvents(data.events);
+         if ($.isArray(events)) {
+            eventsToRender = self._cleanEvents(events);
+         } else if (events.events) {
+            eventsToRender = self._cleanEvents(events.events);
          }
-          
-         if (data.options) {
+         if (events.options) {
 
             var updateLayout = false;
             //update options
-            $.each(data.options, function(key, value) {
+            $.each(events.options, function(key, value) {
                if (value !== options[key]) {
                   options[key] = value;
                   updateLayout = true;
@@ -922,7 +818,7 @@
                adjustedEnd = currentCalEvent.start;
             }
             //has been dropped inside existing event with same or larger duration
-            if (oldCalEvent.resizable == false || (newCalEvent.end.getTime() <= currentCalEvent.end.getTime()
+            if (! oldCalEvent.resizable || (newCalEvent.end.getTime() <= currentCalEvent.end.getTime()
                   && newCalEvent.start.getTime() >= currentCalEvent.start.getTime())) {
 
                adjustedStart = oldCalEvent.start;
@@ -986,19 +882,14 @@
                var top = Math.round(parseInt(ui.position.top));
                var eventDuration = self._getEventDurationFromPositionedEventElement($weekDay, $calEvent, top);
                var calEvent = $calEvent.data("calEvent");
-
-                
-
-               var newCalEvent = $.extend(true, {}, calEvent, {start: eventDuration.start, end: eventDuration.end});
+               var newCalEvent = $.extend(true, {start: eventDuration.start, end: eventDuration.end}, calEvent);
                self._adjustForEventCollisions($weekDay, $calEvent, newCalEvent, calEvent, true);
                var $weekDayColumns = self.element.find(".wc-day-column-inner");
-
-                //trigger drop callback
-               options.eventDrop(newCalEvent, calEvent, $newEvent);
-
                var $newEvent = self._renderEvent(newCalEvent, self._findWeekDayForEvent(newCalEvent, $weekDayColumns));
                $calEvent.hide();
-              
+
+               //trigger drop callback
+               options.eventDrop(newCalEvent, calEvent, $newEvent);
                $calEvent.data("preventClick", true);
 
                var $weekDayOld = self._findWeekDayForEvent($calEvent.data("calEvent"), self.element.find(".wc-time-slots .wc-day-column-inner"));
@@ -1030,7 +921,7 @@
             stop :function(event, ui) {
                var $calEvent = ui.element;
                var newEnd = new Date($calEvent.data("calEvent").start.getTime() + ($calEvent.height() / options.timeslotHeight) * options.millisPerTimeslot);
-               var newCalEvent = $.extend(true, {}, calEvent, {start: calEvent.start, end: newEnd});
+               var newCalEvent = $.extend(true, {start: calEvent.start, end: newEnd}, calEvent);
                self._adjustForEventCollisions($weekDay, $calEvent, newCalEvent, calEvent);
 
                self._refreshEventDetails(newCalEvent, $calEvent);
@@ -1052,14 +943,7 @@
       _refreshEventDetails : function(calEvent, $calEvent) {
          var self = this;
          var options = this.options;
-         var one_hour = 3600000;
-         var displayTitleWithTime = calEvent.end.getTime()-calEvent.start.getTime() <= (one_hour/options.timeslotsPerHour);
-         if (displayTitleWithTime){
-           $calEvent.find(".wc-time").html(self._formatDate(calEvent.start, options.timeFormat) + ": " + calEvent.title);
-         }
-         else {
-           $calEvent.find(".wc-time").html(self._formatDate(calEvent.start, options.timeFormat) + options.timeSeparator + self._formatDate(calEvent.end, options.timeFormat));
-         }
+         $calEvent.find(".wc-time").html(self._formatDate(calEvent.start, options.timeFormat) + options.timeSeparator + self._formatDate(calEvent.end, options.timeFormat));
          $calEvent.find(".wc-title").html(calEvent.title);
          $calEvent.data("calEvent", calEvent);
       },
@@ -1088,7 +972,7 @@
             } else {
                slot = hour - self.options.businessHours.start;
             }
-            
+
          }
 
          var $target = this.element.find(".wc-grid-timeslot-header .wc-hour-header:eq(" + slot + ")");
@@ -1182,31 +1066,26 @@
       /*
        * returns the date on the first millisecond of the week
        */
-
       _dateFirstDayOfWeek : function(date) {
-         var self = this;
-         var midnightCurrentDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-         var adjustedDate = new Date(midnightCurrentDate);
-         adjustedDate.setDate(adjustedDate.getDate() - self._getAdjustedDayIndex(midnightCurrentDate));
-
-         return adjustedDate;
-
+         if(date !== null){
+           var self = this;
+           var midnightCurrentDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+           var millisToSubtract = self._getAdjustedDayIndex(midnightCurrentDate) * 86400000;
+           return new Date(midnightCurrentDate.getTime() - millisToSubtract);
+         }else{
+            return null;
+         }
       },
 
-       /*
+      /*
        * returns the date on the first millisecond of the last day of the week
        */
-       _dateLastDayOfWeek : function(date) {
-
-
+      _dateLastDayOfWeek : function(date) {
          var self = this;
          var midnightCurrentDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-         var adjustedDate = new Date(midnightCurrentDate);
-         adjustedDate.setDate(adjustedDate.getDate() + (6 - this._getAdjustedDayIndex(midnightCurrentDate)));
-
-         return adjustedDate;
-          
-       },
+         var millisToAdd = (6 - self._getAdjustedDayIndex(midnightCurrentDate)) * MILLIS_IN_DAY;
+         return new Date(midnightCurrentDate.getTime() + millisToAdd);
+      },
 
       /*
        * gets the index of the current day adjusted based on options
@@ -1289,20 +1168,11 @@
          for (var i = 0; i < format.length; i++) {
             var curChar = format.charAt(i);
             if ($.isFunction(this._replaceChars[curChar])) {
-	           var res = this._replaceChars[curChar](date, options);
-
-	           if (res === '00' && options.alwaysDisplayTimeMinutes === false) {
-		          //remove previous character
-		          returnStr = returnStr.slice(0, -1);
-		        } else {
-                 
-	               returnStr += res;
-	           }
+               returnStr += this._replaceChars[curChar](date, options);
             } else {
                returnStr += curChar;
             }
          }
-
          return returnStr;
       },
 
@@ -1426,7 +1296,70 @@
 
    $.extend($.ui.weekCalendar, {
       version: '1.2.2-pre',
-
+      getter: ['getTimeslotTimes', 'getData', 'formatDate', 'formatTime'],
+      defaults: {
+         date: new Date(),
+         timeFormat : "h:i a",
+         dateFormat : "M d, Y",
+         use24Hour : false,
+         daysToShow : 7,
+         firstDayOfWeek : 0, // 0 = Sunday, 1 = Monday, 2 = Tuesday, ... , 6 = Saturday
+         useShortDayNames: false,
+         timeSeparator : " to ",
+         startParam : "start",
+         endParam : "end",
+         businessHours : {start: 8, end: 18, limitDisplay : false},
+         newEventText : "New Event",
+         timeslotHeight: 20,
+         defaultEventLength : 2,
+         timeslotsPerHour : 4,
+         buttons : true,
+         buttonText : {
+            today : "today",
+            lastWeek : "&nbsp;&lt;&nbsp;",
+            nextWeek : "&nbsp;&gt;&nbsp;"
+         },
+         scrollToHourMillis : 500,
+         allowCalEventOverlap : false,
+         overlapEventsSeparate: false,
+         readonly: false,
+         draggable : function(calEvent, element) {
+            return true;
+         },
+         resizable : function(calEvent, element) {
+            return true;
+         },
+         eventClick : function() {
+         },
+         eventRender : function(calEvent, element) {
+            return element;
+         },
+         eventAfterRender : function(calEvent, element) {
+            return element;
+         },
+         eventDrag : function(calEvent, element) {
+         },
+         eventDrop : function(calEvent, element) {
+         },
+         eventResize : function(calEvent, element) {
+         },
+         eventNew : function(calEvent, element) {
+         },
+         eventMouseover : function(calEvent, $event) {
+         },
+         eventMouseout : function(calEvent, $event) {
+         },
+         calendarBeforeLoad : function(calendar) {
+         },
+         calendarAfterLoad : function(calendar) {
+         },
+         noEvents : function() {
+         },
+         shortMonths : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+         longMonths : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+         shortDays : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+         longDays : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      }
    });
 
    var MILLIS_IN_DAY = 86400000;
