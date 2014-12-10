@@ -55,8 +55,6 @@ $(document).ready(function() {
                   calEvent.title = titleField.val();
                   calEvent.body = bodyField.val();
 
-        				  //post to events.php
-        				  //$.post("events.php?action=save&start="+calEvent.start.getTime()/1000+"&end="+calEvent.end.getTime()/1000+"&title="+calEvent.title+"&body="+calEvent.body);
                   var dataString = "action=save&start="+(calEvent.start.getTime()/1000)+"&end="+(calEvent.end.getTime()/1000)+"&title="+encodeURIComponent(calEvent.title)+"&body="+encodeURIComponent(calEvent.body);
                   $.ajax({
                     url: 'events.php',
@@ -117,11 +115,28 @@ $(document).ready(function() {
                   calEvent.title = titleField.val();
                   calEvent.body = bodyField.val();
 
-                  $calendar.weekCalendar("updateEvent", calEvent);
+                  $calendar.weekCalendar("updateEvent", calEvent);//this does the client side update
+                  //I need the ajax update right here
+                  var dataString = "action=update&start="+(calEvent.start.getTime()/1000)+"&end="+(calEvent.end.getTime()/1000)+"&title="+encodeURIComponent(calEvent.title)+"&body="+encodeURIComponent(calEvent.body);
+                  //stopped right here...
+                  $.ajax({
+                    url: 'events.php',
+                    data: dataString,
+                    type:'POST',
+                    success:function(response){
+                      $calendar.weekCalendar("removeUnsavedEvents");
+                      $calendar.weekCalendar("updateEvent", calEvent);
+                      $dialogContent.dialog("close");
+                    },
+                    error:function(error){
+                      alert(error);
+                    }
+                  });
                   $dialogContent.dialog("close");
                },
                "delete" : function() {
-                  $calendar.weekCalendar("removeEvent", calEvent.id);
+                  $calendar.weekCalendar("removeEvent", calEvent.id);//this does the client side delete
+                  //I need the ajax delete right here...
                   $dialogContent.dialog("close");
                },
                cancel : function() {

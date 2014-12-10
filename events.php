@@ -1,79 +1,74 @@
 <?php
-$action = null;
-if(isset($_POST['action']))
-  $action = $_POST['action'];
-else
-  $action = 'read';
+    require_once 'classes/Event.php';
 
-if (@!$link = mysql_connect('localhost', 'root', 'root')) {
-    echo 'Could not connect to mysql';
-    exit;
-}
+    $action = null;
+    if(isset($_POST['action']))
+      $action = $_POST['action'];
+    else
+      $action = 'read';
 
-if (@!mysql_select_db('db_event_calendar', $link)) {
-    echo 'Could not select database';
-    exit;
-}
+    if (@!$link = mysql_connect('localhost', 'root', 'root')) {
+        echo 'Could not connect to mysql';
+        exit;
+    }
 
-if($action == 'save'){
-	$title = addslashes($_POST['title']);
-	$body = addslashes($_POST['body']);
-	$start_time = (int)$_POST['start'];
-	$start_time = $start_time - 21600;
-	$end_time = (int)$_POST['end'];
-	$end_time = $end_time - 21600;
-	$start = date('c',$start_time);
-	$end = date('c',$end_time);
-	$sql = "INSERT INTO tbl_event_calendar(id,title,body,start_time,end_time) VALUES (0,'$title','$body','$start','$end')";
-  echo $sql;
-	$result = mysql_query($sql, $link);
-}else{
-	$sql= "SELECT id, title, body,
-			DATE_FORMAT(start_time, '%Y-%m-%dT%H:%i' ) AS startTime, DATE_FORMAT(end_time, '%Y-%m-%dT%H:%i' ) AS endTime
-		   FROM tbl_event_calendar
-		   ORDER BY start_time DESC";
+    if (@!mysql_select_db('db_event_calendar', $link)) {
+        echo 'Could not select database';
+        exit;
+    }
 
-	$result = mysql_query($sql, $link);
+    if($action == 'save'){
+    	$title = addslashes($_POST['title']);
+    	$body = addslashes($_POST['body']);
+    	$start_time = (int)$_POST['start'];
+    	$start_time = $start_time - 21600;
+    	$end_time = (int)$_POST['end'];
+    	$end_time = $end_time - 21600;
+    	$start = date('c',$start_time);
+    	$end = date('c',$end_time);
+      //now create the Event object...
+      $eventObj = new Event();
+      $eventObj->setTitle($title);
+      $eventObj->setBody($body);
+      $eventObj->setStartTime($start);
+      $eventObj->setEndTime($end);
+      $event = new Event();
+      $event->save($eventObj);
+    }else{
+      $result = Event::getAllEvents();
+    	$events = array();
 
-	if (!$result) {
-		echo "DB Error, could not query the database\n";
-		echo 'MySQL Error: ' . mysql_error();
-		exit;
-	}
+    	while ($row = mysql_fetch_assoc($result)) {
+    	   $eventArray['id'] = $row['id'];
+    	   $eventArray['title'] =  stripslashes($row['title']);
+    	   $eventArray['body'] =  stripslashes($row['body']);
+    	   $eventArray['start'] = $row['startTime'];
+    	   $eventArray['end'] = $row['endTime'];
+    	   $events[] = $eventArray;
+    	}
 
-	$events = array();
+    	echo json_encode($events);
+    }
 
-	while ($row = mysql_fetch_assoc($result)) {
-	   $eventArray['id'] = $row['id'];
-	   $eventArray['title'] =  stripslashes($row['title']);
-	   $eventArray['body'] =  stripslashes($row['body']);
-	   $eventArray['start'] = $row['startTime'];
-	   $eventArray['end'] = $row['endTime'];
-	   $events[] = $eventArray;
-	}
+    /*
+       echo json_encode(array(
 
-	echo json_encode($events);
-}
+          array(
+             'id' => 1,
+             'start' => "2012-07-08T08:30",
+    		 'end' => "2012-07-08T09:30",
+    		 'title' => "event1",
+    		 'body' => "kaka"
+          ),
 
-/*
-   echo json_encode(array(
+          array(
+             'id' => 2,
+             'start' => "2012-07-09T08:30",
+             'end' => "2012-07-09T09:30",
+    		 'title' => "event2"
+          )
 
-      array(
-         'id' => 1,
-         'start' => "2012-07-08T08:30",
-		 'end' => "2012-07-08T09:30",
-		 'title' => "event1",
-		 'body' => "kaka"
-      ),
-
-      array(
-         'id' => 2,
-         'start' => "2012-07-09T08:30",
-         'end' => "2012-07-09T09:30",
-		 'title' => "event2"
-      )
-
-   ));
-*/
+       ));
+    */
 
 ?>
