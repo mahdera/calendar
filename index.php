@@ -15,12 +15,13 @@
 	<link rel='stylesheet' type='text/css' href='css/reset.css' />
 	<link rel='stylesheet' type='text/css' href='css/engine.css' />
 
-
+  <!--
 	<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js'></script>
+  -->
 	   <!--
     <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js'></script>
     -->
-
+  <script type='text/javascript' src="libs/jquery-1.4.2.min.js"></script>
   <script type='text/javascript' src='libs/jquery-ui-1.8rc3.custom.min.js'></script>
 	<script type='text/javascript' src='jquery.weekcalendar.js'></script>
 	<script type='text/javascript' src='engine.js'></script>

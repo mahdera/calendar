@@ -1,8 +1,9 @@
 $(document).ready(function() {
 
-
    var $calendar = $('#calendar');
    var id = 10;
+
+   //alert($calendar);
 
    $calendar.weekCalendar({
       timeslotsPerHour : 4,
@@ -54,22 +55,28 @@ $(document).ready(function() {
                   calEvent.end = new Date(endField.val());
                   calEvent.title = titleField.val();
                   calEvent.body = bodyField.val();
+                  calEvent.readOnly = false;
+                  //here is where the save to database record comes in...
+                  //now do call the ajax function to save these values to the database...
+                  var dataString = "start=" + (calEvent.start.getTime()) +
+                  "&end=" + (calEvent.end.getTime()) + "&title=" +
+                  encodeURIComponent(calEvent.title) + "&body=" +
+                  encodeURIComponent(calEvent.body) + "&readOnly=" +
+                  encodeURIComponent(calEvent.readOnly);
 
-        				  //post to events.php
-        				  //$.post("events.php?action=save&start="+calEvent.start.getTime()/1000+"&end="+calEvent.end.getTime()/1000+"&title="+calEvent.title+"&body="+calEvent.body);
-                  var dataString = "action=save&start="+(calEvent.start.getTime()/1000)+"&end="+(calEvent.end.getTime()/1000)+"&title="+encodeURIComponent(calEvent.title)+"&body="+encodeURIComponent(calEvent.body);
                   $.ajax({
-                    url: 'events.php',
-                    data: dataString,
-                    type:'POST',
-                    success:function(response){
-                      $calendar.weekCalendar("removeUnsavedEvents");
-                      $calendar.weekCalendar("updateEvent", calEvent);
-                      $dialogContent.dialog("close");
-                    },
-                    error:function(error){
-                      alert(error);
-                    }
+                      url: 'saveeventcalendar.php',
+                      data: dataString,
+                      type:'POST',
+                      success:function(response){
+                          //alert(response);
+                          $calendar.weekCalendar("removeUnsavedEvents");
+                          $calendar.weekCalendar("updateEvent", calEvent);
+                          $dialogContent.dialog("close");
+                      },
+                      error:function(error){
+                          alert(error);
+                      }
                   });
                },
                cancel : function() {
@@ -83,7 +90,6 @@ $(document).ready(function() {
 
       },
       eventDrop : function(calEvent, $event) {
-
       },
       eventResize : function(calEvent, $event) {
       },
@@ -144,13 +150,152 @@ $(document).ready(function() {
       noEvents : function() {
 
       },
-      data : "events.php"
+      data : function(start, end, callback) {
+         //callback(getEventData());
+         var result = null;
+         result = getEventData();
+         alert(result);
+         callback( result );
+      }
    });
 
    function resetForm($dialogContent) {
       $dialogContent.find("input").val("");
       $dialogContent.find("textarea").val("");
    }
+
+
+   function getEventData() {
+       var returnString = "";
+
+       $.getJSON('getalleventdata.php', function(data) {
+         returnString = '"events":[';
+         $.each(data.events, function(key, val) {
+             returnString += '{';
+             returnString += '"id" : ' + val.id + ',';
+             returnString += '"start" : "' + new Date(parseInt(val.start)) + '",';
+             returnString += '"end" : "' + new Date(parseInt(val.end)) + '",';
+             returnString += '"title" : "' + val.title + '",';
+             returnString += '"body" : "' + val.body + '",';
+             returnString += '"readOnly" : ' + val.readOnly;
+             returnString += '},';
+             //console.log(returnString);
+         });//end $.each loop
+
+         returnString = returnString.substring( 0, returnString.length - 1);
+         returnString += "]}";
+         console.log(returnString);
+         //alert(returnString);
+
+         //return returnString;
+
+         return {
+           "events": [
+             {
+               "id" : 9,
+               "start" : "Mon Dec 08 2014 09:30:00 GMT-0500 (EST)",
+               "end" : "Mon Dec 08 2014 10:00:00 GMT-0500 (EST)",
+               "title" : "This is a second one",
+               "body" : "This is the body for the second event calendar!",
+               "readOnly" : 0
+             },
+             {
+                "id" : 8,
+                "start" : "Mon Dec 08 2014 08:15:00 GMT-0500 (EST)",
+                "end" : "Mon Dec 08 2014 08:45:00 GMT-0500 (EST)",
+                "title" : "Konjo Ferenj",
+                "body" : "She is betam konjo and I want to mebdat her!",
+                "readOnly" : 0
+              }
+           ]
+         };
+
+       });//end $.getJSON function
+
+
+
+
+
+       /*
+       //return "{" + jsonObj + "}";
+      // return {"events":[{"id":"1","start":"Mon Dec 01 2014 02 : 15 : 00 GMT-0500 (EST)","end":"Mon Dec 01 2014 02 : 45 : 00 GMT-0500 (EST)","title":"This is the first event"}]};
+
+
+
+      //this is where i need to read from the database and return a JSON
+
+    */
+      /*var year = new Date().getFullYear();
+      var month = new Date().getMonth();
+      var day = new Date().getDate();*/
+
+      /*
+
+      //var
+
+      /*$.ajax({
+        dataType: "json",
+        url: 'getalleventdata.php',
+        data: null,
+        type:'POST',
+        success:function(response){
+          return response;
+          /*$calendar.weekCalendar("removeUnsavedEvents");
+          $calendar.weekCalendar("updateEvent", calEvent);
+          $dialogContent.dialog("close");
+        },
+        error:function(error){
+          alert(error);
+        }
+      });*/
+
+      /*
+      return {
+        "events" : [
+            {
+               "id":"1",
+               "start": new Date(year, month, day, 12),
+               "end": new Date(year, month, day, 13, 30),
+               "title":"Lunch with Mike"
+            },
+            {
+               "id":"2",
+               "start": new Date(year, month, day, 14),
+               "end": new Date(year, month, day, 14, 45),
+               "title":"Dev Meeting"
+            },
+            {
+               "id":3,
+               "start": new Date(year, month, day + 1, 17),
+               "end": new Date(year, month, day + 1, 17, 45),
+               "title":'Hair cut'
+            },
+            {
+               "id":4,
+               "start": new Date(year, month, day - 1, 8),
+               "end": new Date(year, month, day - 1, 9, 30),
+               "title":"Team breakfast"
+            },
+            {
+               "id":5,
+               "start": new Date(year, month, day + 1, 14),
+               "end": new Date(year, month, day + 1, 15),
+               "title":"Product showcase"
+            },
+            {
+               "id":6,
+               "start": new Date(year, month, day, 10),
+               "end": new Date(year, month, day, 11),
+               "title":"I'm read-only",
+               readOnly : true
+            }
+
+         ]
+      };
+      */
+
+   }//end function getEventData()
+
 
    /*
     * Sets up the start and end time fields in the calendar event
