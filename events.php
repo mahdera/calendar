@@ -69,7 +69,7 @@
       $eventObj->body = $body;
       $eventObj->startTime = $start;
       $eventObj->endTime = $end;
-      $eventObj->setModifiedBy($_SESSION['LOGGED_USER_ID']);
+      $eventObj->modifiedBy = $_SESSION['LOGGED_USER_ID'];
       if($eventObj != null){
         Event::update($eventObj);
       }

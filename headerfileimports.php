@@ -8,5 +8,5 @@
 
 <script type='text/javascript' src="libs/jquery-1.4.2.min.js"></script>
 <script type='text/javascript' src='libs/jquery-ui-1.8rc3.custom.min.js'></script>
-<script type='text/javascript' src='jquery.weekcalendar.js'></script>
-<script type='text/javascript' src='engine.js'></script>
+<script type='text/javascript' src='js/jquery.weekcalendar.js'></script>
+<script type='text/javascript' src='js/engine.js'></script>
