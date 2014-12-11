@@ -7,6 +7,8 @@
       private $body;
       private $startTime;
       private $endTime;
+      private $modifiedBy;
+      private $modificationDate;
 
       public function __construct(){
       }
@@ -51,9 +53,25 @@
           return $this->endTime;
       }
 
+      public function setModifiedBy($modifiedBy){
+          $this->modifiedBy = $modifiedBy;
+      }
+
+      public function getModifiedBy(){
+          return $this->modifiedBy;
+      }
+
+      public function setModificationDate($modificationDate){
+          $this->modificationDate = $modificationDate;
+      }
+
+      public function getModificationDate(){
+          return $this->modificationDate;
+      }
+
       public function save($event){
         try{
-          $query = "INSERT INTO tbl_event_calendar VALUES(0, '$event->title', '$event->body', '$event->startTime', '$event->endTime')";
+          $query = "INSERT INTO tbl_event_calendar VALUES(0, '$event->title', '$event->body', '$event->startTime', '$event->endTime', $event->modifiedBy, NOW() )";
           DBConnection::save($query);
         }catch(Exception $ex){
           $ex->getMessage();
@@ -62,7 +80,7 @@
 
       public static function update($event){
         try{
-          $query = "UPDATE tbl_event_calendar SET title = '$event->title', body = '$event->body', start_time='$event->startTime', end_time='$event->endTime' WHERE id = $event->id";
+          $query = "UPDATE tbl_event_calendar SET title = '$event->title', body = '$event->body', start_time='$event->startTime', end_time='$event->endTime', modified_by = $event->modifiedBy, modification_date = NOW() WHERE id = $event->id";
           echo $query;
           DBConnection::save($query);
         }catch(Exception $ex){
@@ -112,6 +130,16 @@
       public static function getAllEvents(){
         try{
           $query = "SELECT id, title, body, DATE_FORMAT(start_time, '%Y-%m-%dT%H:%i' ) AS startTime, DATE_FORMAT(end_time, '%Y-%m-%dT%H:%i' ) AS endTime FROM tbl_event_calendar ORDER BY start_time DESC";
+          $result = DBConnection::read($query);
+          return $result;
+        }catch(Exception $ex){
+          $ex->getMessage();
+        }
+      }
+
+      public static function getAllEventsForUser($userId){
+        try{
+          $query = "SELECT id, title, body, DATE_FORMAT(start_time, '%Y-%m-%dT%H:%i' ) AS startTime, DATE_FORMAT(end_time, '%Y-%m-%dT%H:%i' ) AS endTime FROM tbl_event_calendar WHERE modified_by = $userId ORDER BY start_time DESC";
           $result = DBConnection::read($query);
           return $result;
         }catch(Exception $ex){

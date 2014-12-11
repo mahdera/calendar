@@ -1,4 +1,5 @@
 <?php
+    session_start();
     require_once 'classes/Event.php';
 
     $action = null;
@@ -32,10 +33,13 @@
       $eventObj->setBody($body);
       $eventObj->setStartTime($start);
       $eventObj->setEndTime($end);
+      $eventObj->setModifiedBy($_SESSION['LOGGED_USER_ID']);
       $event = new Event();
       $event->save($eventObj);
     }else if($action == 'read'){
-      $result = Event::getAllEvents();
+      //$result = Event::getAllEvents();
+      //now I need to read all events only created by the session owner...
+      $result = Event::getAllEventsForUser($_SESSION['LOGGED_USER_ID']);
     	$events = array();
 
     	while ($row = mysql_fetch_assoc($result)) {
@@ -65,6 +69,7 @@
       $eventObj->body = $body;
       $eventObj->startTime = $start;
       $eventObj->endTime = $end;
+      $eventObj->setModifiedBy($_SESSION['LOGGED_USER_ID']);
       if($eventObj != null){
         Event::update($eventObj);
       }
