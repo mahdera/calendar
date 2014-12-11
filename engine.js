@@ -100,6 +100,7 @@ $(document).ready(function() {
          bodyField.val(calEvent.body);
 
          $dialogContent.dialog({
+            //this dialog is used to update an existing event in the calendar...
             modal: true,
             title: "Edit - " + calEvent.title,
             close: function() {
@@ -115,9 +116,10 @@ $(document).ready(function() {
                   calEvent.title = titleField.val();
                   calEvent.body = bodyField.val();
 
-                  $calendar.weekCalendar("updateEvent", calEvent);//this does the client side update
+                  //$calendar.weekCalendar("updateEvent", calEvent);//this does the client side update
                   //I need the ajax update right here
-                  var dataString = "action=update&start="+(calEvent.start.getTime()/1000)+"&end="+(calEvent.end.getTime()/1000)+"&title="+encodeURIComponent(calEvent.title)+"&body="+encodeURIComponent(calEvent.body);
+                  var dataString = "action=update&start="+(calEvent.start.getTime()/1000)+"&end="+(calEvent.end.getTime()/1000)+"&title="+encodeURIComponent(calEvent.title)+"&body="+encodeURIComponent(calEvent.body)+
+                  "&id="+calEvent.id;
                   //stopped right here...
                   $.ajax({
                     url: 'events.php',
@@ -135,9 +137,23 @@ $(document).ready(function() {
                   $dialogContent.dialog("close");
                },
                "delete" : function() {
-                  $calendar.weekCalendar("removeEvent", calEvent.id);//this does the client side delete
                   //I need the ajax delete right here...
-                  $dialogContent.dialog("close");
+                  if(window.confirm('Are you sure you want to delete this event?')){
+                    var dataString = "action=delete&id="+calEvent.id;
+                    $.ajax({
+                      url: 'events.php',
+                      data: dataString,
+                      type: 'POST',
+                      success:function(response){
+                        $dialogContent.dialog("close");
+                        $calendar.weekCalendar("removeEvent", calEvent.id);//this does the client side delete
+                        //$calendar.weekCalendar("removeUnsavedEvents");
+                      },
+                      error:function(error){
+                        alert(error);
+                      }
+                    });
+                  }
                },
                cancel : function() {
                   $dialogContent.dialog("close");
@@ -159,7 +175,7 @@ $(document).ready(function() {
       noEvents : function() {
 
       },
-      data : "events.php"
+      data : "events.php?action=read"
    });
 
    function resetForm($dialogContent) {

@@ -2,12 +2,7 @@
 <html>
 <head>
 
-
-    <!--
-	<link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/start/jquery-ui.css' />
-	-->
-
-    <link rel='stylesheet' type='text/css' href='libs/css/smoothness/jquery-ui-1.8rc3.custom.css' />
+  <link rel='stylesheet' type='text/css' href='libs/css/smoothness/jquery-ui-1.8rc3.custom.css' />
 
 
 	<link rel='stylesheet' type='text/css' href='css/jquery.weekcalendar.css' />
@@ -15,12 +10,6 @@
 	<link rel='stylesheet' type='text/css' href='css/reset.css' />
 	<link rel='stylesheet' type='text/css' href='css/engine.css' />
 
-  <!--
-	<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js'></script>
-  -->
-	   <!--
-    <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js'></script>
-    -->
   <script type='text/javascript' src="libs/jquery-1.4.2.min.js"></script>
   <script type='text/javascript' src='libs/jquery-ui-1.8rc3.custom.min.js'></script>
 	<script type='text/javascript' src='jquery.weekcalendar.js'></script>
@@ -28,30 +17,37 @@
 
 </head>
 <body>
-	<h1>Event Calendar</h1>
-	<div id='calendar'></div>
-	<div id="event_edit_container">
-		<form>
-			<input type="hidden" />
-			<ul>
-				<li>
-					<span>Date: </span><span class="date_holder"></span>
-				</li>
-				<li>
-					<label for="start">Start Time: </label><select name="start"><option value="">Select Start Time</option></select>
-				</li>
-				<li>
-					<label for="end">End Time: </label><select name="end"><option value="">Select End Time</option></select>
-				</li>
-				<li>
-					<label for="title">Title: </label><input type="text" name="title" />
-				</li>
-				<li>
-					<label for="body">Body: </label><textarea name="body"></textarea>
-				</li>
-			</ul>
-		</form>
-	</div>
-
+	<h2>Login</h2>
+  <div>
+    <form action="validateuser.php" id="frmlogin" method="post">
+        <table border="0">
+          <tr>
+            <td>User Id:</td>
+            <td>
+                <input type="text" name="txtuserid" id="txtuserid"/>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2" align="right">
+                <input type="submit" value="Login" id="btnlogin"/>
+            </td>
+          </tr>
+        </table>
+    </form>
+  </div>
 </body>
+<script type="text/javascript">
+$(document).ready(function(){
+  $('#frmlogin').submit(function(e){
+    var userId = $('#txtuserid').val();
+    if(userId != ""){
+      //form has value and let the normal event process flow...
+    }else{
+      alert('Enter userid!');
+      $('#txtuserid').focus();
+      e.preventDefault();
+    }
+  });
+});//end document.ready function
+</script>
 </html>

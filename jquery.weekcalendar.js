@@ -249,16 +249,6 @@
       }
     },
 
-
-
-
-
-    /*
-    getData : function(key) {
-    return this._getData(key);
-  },
-  */
-
   /*********************
   * private functions *
   *********************/

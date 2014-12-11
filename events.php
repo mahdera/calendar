@@ -34,7 +34,7 @@
       $eventObj->setEndTime($end);
       $event = new Event();
       $event->save($eventObj);
-    }else{
+    }else if($action == 'read'){
       $result = Event::getAllEvents();
     	$events = array();
 
@@ -46,29 +46,30 @@
     	   $eventArray['end'] = $row['endTime'];
     	   $events[] = $eventArray;
     	}
-
     	echo json_encode($events);
+    }else if($action == 'update'){
+      $id = $_POST['id'];
+      $title = addslashes($_POST['title']);
+      $body = addslashes($_POST['body']);
+      $start_time = (int)$_POST['start'];
+      $start_time = $start_time - 21600;
+      $end_time = (int)$_POST['end'];
+      $end_time = $end_time - 21600;
+      $start = date('c',$start_time);
+      $end = date('c',$end_time);
+      //now fetch the event object form the database...using title, start and end...
+      $eventObj = Event::getEvent($id);
+      //now set the new value to the object.
+      $eventObj->id = $id;
+      $eventObj->title = $title;
+      $eventObj->body = $body;
+      $eventObj->startTime = $start;
+      $eventObj->endTime = $end;
+      if($eventObj != null){
+        Event::update($eventObj);
+      }
+    }else if($action == 'delete'){
+      $id = $_POST['id'];
+      Event::delete($id);
     }
-
-    /*
-       echo json_encode(array(
-
-          array(
-             'id' => 1,
-             'start' => "2012-07-08T08:30",
-    		 'end' => "2012-07-08T09:30",
-    		 'title' => "event1",
-    		 'body' => "kaka"
-          ),
-
-          array(
-             'id' => 2,
-             'start' => "2012-07-09T08:30",
-             'end' => "2012-07-09T09:30",
-    		 'title' => "event2"
-          )
-
-       ));
-    */
-
 ?>

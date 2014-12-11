@@ -63,6 +63,7 @@
       public static function update($event){
         try{
           $query = "UPDATE tbl_event_calendar SET title = '$event->title', body = '$event->body', start_time='$event->startTime', end_time='$event->endTime' WHERE id = $event->id";
+          echo $query;
           DBConnection::save($query);
         }catch(Exception $ex){
           $ex->getMessage();
@@ -84,6 +85,25 @@
           $result = DBConnection::read($query);
           $resultRow = mysql_fetch_object($result);
           return $resultRow;
+        }catch(Exception $ex){
+          $ex->getMessage();
+        }
+      }
+
+      public static function getEventUsing($title, $start, $end){
+        try{
+          $query = "SELECT id, title, body, DATE_FORMAT(start_time, '%Y-%m-%dT%H:%i') AS startTime, DATE_FORMAT(end_time, '%Y-%m-%dT%H:%i') AS endTime FROM tbl_event_calendar WHERE title = '$title' and start_time = '$start' and end_time = '$end'";
+          echo $query;
+          $result = DBConnection::read($query);
+          $resultRow = mysql_fetch_object($result);
+          $eventObj = null;
+          $eventObj = new Event();
+          $eventObj->id = $resultRow->id;
+          $eventObj->title = $resultRow->title;
+          $eventObj->body = $resultRow->body;
+          $eventObj->startTime = $resultRow->startTime;
+          $eventObj->endTime = $resultRow->endTime;
+          return $eventObj;
         }catch(Exception $ex){
           $ex->getMessage();
         }
